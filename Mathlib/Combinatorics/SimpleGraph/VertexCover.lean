@@ -128,27 +128,10 @@ theorem IsMinimumCover.isMinimalCover [Finite V] {c : Set V} (h : IsMinimumCover
   have hcard : d.encard = c.encard := le_antisymm h1 h2
   -- Suppose for contradiction that c ⊄ d, i.e. d is a strict subset of c.
   by_contra hcd
-  have hsub : d ⊊ c := ⟨hdc, fun heq => hcd (heq ▸ le_refl c)⟩
-  -- Since V is finite, c is finite, so its encard is not ⊤.
-  have hfin : c.encard ≠ ⊤ := Set.encard_ne_top_iff.mpr (Set.toFinite c)
-  -- A proper subset of a finite set has strictly smaller cardinality — contradiction.
-  exact absurd hcard (ne_of_lt ((Set.encard_lt_encard hsub).mpr hfin))
-
-/-- A minimum cover achieves the vertex cover number. -/
-theorem IsMinimumCover.encard_eq_vertexCoverNum {c : Set V} (h : IsMinimumCover G c) :
-    c.encard = G.vertexCoverNum := by
-  apply le_antisymm h.1.vertexCoverNum_le
-  simp only [vertexCoverNum, le_iInf_iff]
-  exact fun s hs => h.2 hs (Set.encard_mono (Set.subset_univ s) |>.trans
-    (by simp [Set.encard_univ]))
-
-/-- The empty graph has a minimum cover: the empty set. -/
-@[simp]
-theorem isMinimumCover_empty_of_bot : (⊥ : SimpleGraph V).IsMinimumCover ∅ := by
-  constructor
-  · simp
-  · intro d _ h
-    simpa using h
+  have hsub : d ⊂ c := ⟨hdc, hcd⟩
+  -- Since V is finite, d is finite, so a proper subset has strictly smaller cardinality.
+  -- This contradicts hcard.
+  exact absurd hcard (ne_of_lt ((Set.toFinite d).encard_lt_encard hsub))
 
 end IsMinimalCover
 
